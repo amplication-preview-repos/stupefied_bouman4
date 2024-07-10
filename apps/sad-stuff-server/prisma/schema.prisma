@@ -1,0 +1,52 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model DetectionLog {
+  id              String         @id @default(cuid())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  timestamp       DateTime?
+  user            User?          @relation(fields: [userId], references: [id])
+  userId          String?
+  detectedMusic   DetectedMusic? @relation(fields: [detectedMusicId], references: [id])
+  detectedMusicId String?
+}
+
+model DetectedMusic {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  title         String?
+  artist        String?
+  duration      Int?
+  detectionLogs DetectionLog[]
+}
+
+model AudioSample {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  filePath  String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  firstName     String?
+  lastName      String?
+  username      String         @unique
+  email         String?        @unique
+  password      String
+  roles         Json
+  detectionLogs DetectionLog[]
+  audioSamples  AudioSample[]
+}
